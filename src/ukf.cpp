@@ -23,16 +23,16 @@ UKF::UKF() {
   n_aug_ = n_x_ + 2;
   
   // initial state vector
-  x_ = VectorXd(n_x_); // px, py, v, yaw, yawds
+  x_ = VectorXd(n_x_); // px, py, v, yaw, yawd
 
   // initial covariance matrix
   P_ = MatrixXd(n_x_, n_x_);
   
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  std_a_ = 0.1;
+  std_a_ = 4.0;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_ = 0.1;
+  std_yawdd_ = 1.0;
 
   // Laser measurement noise standard deviation position1 in m
   std_laspx_ = 0.1;
@@ -41,21 +41,16 @@ UKF::UKF() {
   std_laspy_ = 0.1;
 
   // Radar measurement noise standard deviation radius in m
-  std_radr_ = 0.3;
+  std_radr_ = 0.2;
 
   // Radar measurement noise standard deviation angle in rad
-  std_radphi_ = 0.03;
+  std_radphi_ = 0.1;
 
   // Radar measurement noise standard deviation radius change in m/s
-  std_radrd_ = 0.3;
+  std_radrd_ = 0.5;
   
-  /*P_ << 
-	  0.0054342,  -0.002405,  0.0034157, -0.0034819, -0.00299378,
-	  -0.002405,    0.01084,   0.001492,  0.0098018,  0.00791091,
-	  0.0034157,   0.001492,  0.0058012, 0.00077863, 0.000792973,
-	 -0.0034819,  0.0098018, 0.00077863,   0.011923,   0.0112491,
-	 -0.0029937,  0.0079109, 0.00079297,   0.011249,   0.0126972;*/
   P_.fill(0.0);
+  //P_ = MatrixXd::Identity(n_x_, n_x_);
 	 
   Xsig_pred_ = MatrixXd(n_x_, 2 * n_aug_ + 1);
   x_.fill(0.0);
@@ -297,7 +292,7 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
   P_ -= K*S*K.transpose();
 
   // NIS
-  double NIS = z_diff.transpose() * S.inverse() * z_diff;
+  NIS_laser_ = z_diff.transpose() * S.inverse() * z_diff;
 }
 
 /**
@@ -392,5 +387,5 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
   P_ -= K*S*K.transpose();  
   
   // NIS
-  double NIS = z_diff.transpose() * S.inverse() * z_diff;
+  NIS_radar_ = z_diff.transpose() * S.inverse() * z_diff;
 }

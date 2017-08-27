@@ -69,6 +69,10 @@ public:
   
   double NIS_laser_;
   double NIS_radar_;
+  
+  std::ofstream nis_laser_file;
+  std::ofstream nis_radar_file;
+  std::ofstream log_file;
 
 
   /**
@@ -105,6 +109,9 @@ public:
    * @param meas_package The measurement at k+1
    */
   void UpdateRadar(MeasurementPackage meas_package);
+  
+  // Log estimate and gt to a file for plotting
+  void Log(const VectorXd& estimate, const VectorXd& gt);
 };
 
 #endif /* UKF_H */

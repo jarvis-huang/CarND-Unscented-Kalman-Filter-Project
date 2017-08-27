@@ -35,10 +35,10 @@ UKF::UKF() {
   std_yawdd_ = 1.0;
 
   // Laser measurement noise standard deviation position1 in m
-  std_laspx_ = 0.1;
+  std_laspx_ = 0.15;
 
   // Laser measurement noise standard deviation position2 in m
-  std_laspy_ = 0.1;
+  std_laspy_ = 0.15;
 
   // Radar measurement noise standard deviation radius in m
   std_radr_ = 0.2;
@@ -60,9 +60,17 @@ UKF::UKF() {
   weights_ = VectorXd(2*n_aug_+1);
   weights_(0) = lambda / (lambda + n_aug_);
   weights_.tail(2*n_aug_) = VectorXd::Constant(2*n_aug_, 0.5/(lambda + n_aug_));
+  
+  nis_laser_file.open ("nis_laser.txt");
+  nis_radar_file.open ("nis_radar.txt");
+  log_file.open("log.txt");
 }
 
-UKF::~UKF() {}
+UKF::~UKF() {
+	nis_laser_file.close();
+	nis_radar_file.close();
+	log_file.close();
+}
 
 /**
  * @param {MeasurementPackage} meas_package The latest measurement data of
@@ -293,6 +301,7 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
 
   // NIS
   NIS_laser_ = z_diff.transpose() * S.inverse() * z_diff;
+  nis_laser_file << NIS_laser_ << std::endl;
 }
 
 /**
@@ -388,4 +397,11 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
   
   // NIS
   NIS_radar_ = z_diff.transpose() * S.inverse() * z_diff;
+  nis_radar_file << NIS_radar_ << std::endl;
+}
+
+void UKF::Log(const VectorXd& estimate, const VectorXd& gt)
+{
+	log_file << estimate(0) << " " << estimate(1) << " " << estimate(2) << " " << estimate(3);
+	log_file << " " << gt(0) << " " << gt(1) << " " << gt(2) << " " << gt(3) << std::endl;
 }

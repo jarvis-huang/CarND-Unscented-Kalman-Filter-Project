@@ -1,86 +1,89 @@
 # Unscented Kalman Filter Project Starter Code
 Self-Driving Car Engineer Nanodegree Program
 
-In this project utilize an Unscented Kalman Filter to estimate the state of a moving object of interest with noisy lidar and radar measurements. Passing the project requires obtaining RMSE values that are lower that the tolerance outlined in the project reburic. 
+In this project utilize an Unscented Kalman Filter to estimate the 
+state of a moving object of interest with noisy lidar and radar measurements. 
+Passing the project requires obtaining RMSE values that are lower that 
+the tolerance outlined in the project reburic.
 
-This project involves the Term 2 Simulator which can be downloaded [here](https://github.com/udacity/self-driving-car-sim/releases)
+[image1]: ./figures/dataset_1_shot.png "Dataset 1 screenshot"
+[image2]: ./figures/dataset_2_shot.png "Dataset 2 screenshot"
+[image3]: ./figures/dataset_1.png "Dataset 1 error"
+[image4]: ./figures/dataset_2.png "Dataset 2 error"
+[image5]: ./figures/NIS_dataset_1.png "Dataset 1 NIS plot"
+[image6]: ./figures/NIS_dataset_2.png "Dataset 2 NIS plot"
 
-This repository includes two files that can be used to set up and intall [uWebSocketIO](https://github.com/uWebSockets/uWebSockets) for either Linux or Mac systems. For windows you can use either Docker, VMware, or even [Windows 10 Bash on Ubuntu](https://www.howtogeek.com/249966/how-to-install-and-use-the-linux-bash-shell-on-windows-10/) to install uWebSocketIO. Please see [this concept in the classroom](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/0949fca6-b379-42af-a919-ee50aa304e6a/lessons/f758c44c-5e40-4e01-93b5-1a82aa4e044f/concepts/16cf4a78-4fc7-49e1-8621-3450ca938b77) for the required version and installation scripts.
-
-Once the install for uWebSocketIO is complete, the main program can be built and ran by doing the following from the project top directory.
-
-1. mkdir build
-2. cd build
-3. cmake ..
-4. make
-5. ./UnscentedKF
-
-Note that the programs that need to be written to accomplish the project are src/ukf.cpp, src/ukf.h, tools.cpp, and tools.h
-
-The program main.cpp has already been filled out, but feel free to modify it.
-
-Here is the main protcol that main.cpp uses for uWebSocketIO in communicating with the simulator.
-
-
-INPUT: values provided by the simulator to the c++ program
-
-["sensor_measurement"] => the measurment that the simulator observed (either lidar or radar)
-
-
-OUTPUT: values provided by the c++ program to the simulator
-
-["estimate_x"] <= kalman filter estimated position x
-["estimate_y"] <= kalman filter estimated position y
-["rmse_x"]
-["rmse_y"]
-["rmse_vx"]
-["rmse_vy"]
-
----
-
-## Other Important Dependencies
-* cmake >= 3.5
-  * All OSes: [click here for installation instructions](https://cmake.org/install/)
-* make >= 4.1 (Linux, Mac), 3.81 (Windows)
-  * Linux: make is installed by default on most Linux distros
-  * Mac: [install Xcode command line tools to get make](https://developer.apple.com/xcode/features/)
-  * Windows: [Click here for installation instructions](http://gnuwin32.sourceforge.net/packages/make.htm)
-* gcc/g++ >= 5.4
-  * Linux: gcc / g++ is installed by default on most Linux distros
-  * Mac: same deal as make - [install Xcode command line tools](https://developer.apple.com/xcode/features/)
-  * Windows: recommend using [MinGW](http://www.mingw.org/)
-
-## Basic Build Instructions
+## Build Instructions
 
 1. Clone this repo.
 2. Make a build directory: `mkdir build && cd build`
 3. Compile: `cmake .. && make`
-4. Run it: `./UnscentedKF` Previous versions use i/o from text files.  The current state uses i/o
-from the simulator.
+4. Run it: `./UnscentedKF` The current state uses i/o from the simulator.
 
 ## Editor Settings
 
-We've purposefully kept editor configuration files out of this repo in order to
-keep it as simple and environment agnostic as possible. However, we recommend
-using the following settings:
+## Project Implementation
+I mostly followed the instructions from the UKF class materials. The only
+special cases are process noise and covariance parameters and initializations.
 
-* indent using spaces
-* set tab width to 2 spaces (keeps the matrices in source code aligned)
+### 1. Noise parameters
 
-## Code Style
+|    Noise   |    Value      | 
+|:----------:|:-------------:| 
+|  std_a     |      4.0      | 
+| std_yawd   |      1.0      | 
+| std_px     |      0.15     | 
+| std_py     |      0.15     | 
+| std_rho    |      0.2      | 
+| std_phi    |      0.1      | 
+| std_rhod   |      0.5      |
 
-Please stick to [Google's C++ style guide](https://google.github.io/styleguide/cppguide.html) as much as possible.
+- For a bicycle, a reason linear acceleration is 2m/s^2. So I set std_a to be double that amount.
+- For a bicycle, I assume it can complete a full circle in 6 seconds. That's equivalent
+to 1 rad/s.
+- I set laser and radar position error to fairly low, but set radar error to be higher than laser
+to match reality.
+- I set angular error of radar to 0.1 rad which is about 6 degrees.
+- I set range rate error error to be a little large.
 
-## Generating Additional Data
+### 1. Initialization of state vector **x** and state covariance matrix **P**
+- For P, I initialize to all zero, for lack of knowledge.
+- For x, it is initialized upon receiving first measurement.
+If the measurement is a laser measurement, I initialize px, py directly from measurement values.
+If the measurement is a laser measurement, I initialize `px=rho*cos(phi)`, `py=rho*sin(phi)`.
 
-This is optional!
+## Results
 
-If you'd like to generate your own radar and lidar data, see the
-[utilities repo](https://github.com/udacity/CarND-Mercedes-SF-Utilities) for
-Matlab scripts that can generate additional data.
+### 1. RMSE
+|   Metric   |Dataset 1 RMSE |Dataset 2 RMSE | 
+|:----------:|:-------------:|:-------------:| 
+|  px        |      0.10     |      0.08     | 
+|  py        |      0.09     |      0.09     | 
+|  vx        |      0.33     |      0.42     | 
+|  vy        |      0.22     |      0.24     | 
 
-## Project Instructions and Rubric
+**Dataset 1 screenshot**
+![Dataset 1 screenshot][image1]
+**Dataset 2 screenshot**
+![Dataset 2 screenshot][image2]
 
-This information is only accessible by people who are already enrolled in Term 2
-of CarND. If you are enrolled, see [the project page](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/0949fca6-b379-42af-a919-ee50aa304e6a/lessons/c3eb3583-17b2-4d83-abf7-d852ae1b9fff/concepts/f437b8b0-f2d8-43b0-9662-72ac4e4029c1)
-for instructions and the project rubric.
+### 2. Detailed error analysis
+As the plots show, position estimates are generally very close to ground truth.
+Velocity estimates are less accurate, but still follows ground truth mostly.
+This is because we don't have direct measurement of the velocities.
+
+**Dataset 1 error analysis**
+![Dataset 1 error analysis][image3]
+**Dataset 2 error analysis**
+![Dataset 2 error analysis][image4]
+
+
+### 3. NIS analysis
+
+NIS plots show the NIS is mostly below 95% line, which shows the filter is very consistent.
+The parameters are set properly so that we correctly estimate the uncertainty of the system.
+
+**Dataset 1 NIS analysis**
+![Dataset 1 NIS analysis][image5]
+**Dataset 2 NIS analysis**
+![Dataset 2 NIS analysis][image6]

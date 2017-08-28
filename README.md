@@ -30,21 +30,12 @@ special cases are process noise and covariance parameters and initializations.
 
 |    Noise   |    Value      | 
 |:----------:|:-------------:| 
-|  std_a     |      4.0      | 
-| std_yawd   |      1.0      | 
-| std_px     |      0.15     | 
-| std_py     |      0.15     | 
-| std_rho    |      0.2      | 
-| std_phi    |      0.1      | 
-| std_rhod   |      0.5      |
+|  std_a     |      3.5      | 
+| std_yawd   |      1.5      | 
 
 - For a bicycle, a reason linear acceleration is 2m/s^2. So I set std_a to be double that amount.
 - For a bicycle, I assume it can complete a full circle in 6 seconds. That's equivalent
 to 1 rad/s.
-- I set laser and radar position error to fairly low, but set radar error to be higher than laser
-to match reality.
-- I set angular error of radar to 0.1 rad which is about 6 degrees.
-- I set range rate error error to be a little large.
 
 ### 1. Initialization of state vector **x** and state covariance matrix **P**
 - For P, I initialize to all zero, for lack of knowledge.
@@ -57,10 +48,10 @@ If the measurement is a laser measurement, I initialize `px=rho*cos(phi)`, `py=r
 ### 1. RMSE
 |   Metric   |Dataset 1 RMSE |Dataset 2 RMSE | 
 |:----------:|:-------------:|:-------------:| 
-|  px        |      0.10     |      0.08     | 
-|  py        |      0.09     |      0.09     | 
-|  vx        |      0.33     |      0.42     | 
-|  vy        |      0.22     |      0.24     | 
+|  px        |      0.082    |      0.086    | 
+|  py        |      0.086    |      0.079    | 
+|  vx        |      0.348    |      0.297    | 
+|  vy        |      0.228    |      0.252    | 
 
 **Dataset 1 screenshot**
 ![Dataset 1 screenshot][image1]

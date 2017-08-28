@@ -29,10 +29,10 @@ UKF::UKF() {
   P_ = MatrixXd(n_x_, n_x_);
   
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  std_a_ = 4.0;
+  std_a_ = 3.5;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_ = 1.0;
+  std_yawdd_ = 1.5;
 
   // Laser measurement noise standard deviation position1 in m
   std_laspx_ = 0.15;
@@ -41,17 +41,17 @@ UKF::UKF() {
   std_laspy_ = 0.15;
 
   // Radar measurement noise standard deviation radius in m
-  std_radr_ = 0.2;
+  std_radr_ = 0.3;
 
   // Radar measurement noise standard deviation angle in rad
-  std_radphi_ = 0.1;
+  std_radphi_ = 0.03;
 
   // Radar measurement noise standard deviation radius change in m/s
-  std_radrd_ = 0.5;
+  std_radrd_ = 0.3;
   
   P_.fill(0.0);
   //P_ = MatrixXd::Identity(n_x_, n_x_);
-	 
+     
   Xsig_pred_ = MatrixXd(n_x_, 2 * n_aug_ + 1);
   x_.fill(0.0);
 
@@ -67,9 +67,9 @@ UKF::UKF() {
 }
 
 UKF::~UKF() {
-	nis_laser_file.close();
-	nis_radar_file.close();
-	log_file.close();
+    nis_laser_file.close();
+    nis_radar_file.close();
+    log_file.close();
 }
 
 /**
@@ -77,32 +77,33 @@ UKF::~UKF() {
  * either radar or laser.
  */
 void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
-  /**
-  TODO:
-
-  Complete this function! Make sure you switch between lidar and radar
-  measurements.
-  */
   if (!is_initialized_)
   {
-	if (meas_package.sensor_type_==MeasurementPackage::LASER)
-	{
-		x_(0) = meas_package.raw_measurements_(0);
-		x_(1) = meas_package.raw_measurements_(1);
-		//x_(2) = 5;
-	}
-	else
-	{
-		double r = meas_package.raw_measurements_(0);
-		double phi = meas_package.raw_measurements_(1);
-		x_(0) = r*cos(phi);
-		x_(1) = r*sin(phi);
-	}	
-	is_initialized_ = true;
-	time_us_ = meas_package.timestamp_;
-	return;
+    if (meas_package.sensor_type_==MeasurementPackage::LASER)
+    {
+        x_(0) = meas_package.raw_measurements_(0);
+        x_(1) = meas_package.raw_measurements_(1);
+        x_(2) = 0;
+        x_(3) = 0;
+        x_(4) = 0;
+    }
+    else
+    {
+        double r = meas_package.raw_measurements_(0);
+        double phi = meas_package.raw_measurements_(1);
+        double rdot = meas_package.raw_measurements_(2);
+        x_(0) = r*cos(phi);
+        x_(1) = r*sin(phi);
+        x_(2) = rdot;
+        x_(3) = 0;
+        x_(4) = 0;
+        
+    }   
+    is_initialized_ = true;
+    time_us_ = meas_package.timestamp_;
+    return;
   }
-	
+    
   double delta_t = (meas_package.timestamp_-time_us_)/1000000.0;
 
   if (meas_package.sensor_type_==MeasurementPackage::LASER && use_laser_)
@@ -110,16 +111,16 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
     // prediction
     Prediction(delta_t);    
     // update
-	UpdateLidar(meas_package);
-	time_us_ = meas_package.timestamp_;
+    UpdateLidar(meas_package);
+    time_us_ = meas_package.timestamp_;
   }
   else if (meas_package.sensor_type_==MeasurementPackage::RADAR && use_radar_)
   {
-	// prediction
+    // prediction
     Prediction(delta_t);
     // update
-	UpdateRadar(meas_package);
-	time_us_ = meas_package.timestamp_;
+    UpdateRadar(meas_package);
+    time_us_ = meas_package.timestamp_;
   }
 }
 
@@ -129,12 +130,6 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
  * measurement and this one.
  */
 void UKF::Prediction(double delta_t) {
-  /**
-  TODO:
-
-  Complete this function! Estimate the object's location. Modify the state
-  vector, x_. Predict sigma points, the state, and the state covariance matrix.
-  */
   lambda_ = 3 - n_x_;
   
   // Create sigma point matrix
@@ -146,9 +141,9 @@ void UKF::Prediction(double delta_t) {
   P_aug.fill(0.0);
   P_aug.topLeftCorner(n_x_,n_x_) = P_;
   P_aug.bottomRightCorner(2,2) << std_a_*std_a_, 0,
-								  0, std_yawdd_*std_yawdd_; // augmentation
-	
-  // Compute augmented sigma points							  
+                                  0, std_yawdd_*std_yawdd_; // augmentation
+    
+  // Compute augmented sigma points                           
   MatrixXd Xsig_aug = MatrixXd(n_aug_, 2 * n_aug_ + 1);
   Xsig_aug.col(0) = x_aug;
   lambda_ = 3 - n_aug_;
@@ -160,8 +155,8 @@ void UKF::Prediction(double delta_t) {
   // Compute sigma points (column vectors of Xsig)
   for (unsigned int i=1; i<=n_aug_; i++)
   {
-	  Xsig_aug.col(i) = x_aug + factor*A_aug.col(i-1);
-	  Xsig_aug.col(i+n_aug_) = x_aug - factor*A_aug.col(i-1);
+      Xsig_aug.col(i) = x_aug + factor*A_aug.col(i-1);
+      Xsig_aug.col(i+n_aug_) = x_aug - factor*A_aug.col(i-1);
   }
   
   // Predict sigma points thru CTRV motion model
@@ -213,17 +208,17 @@ void UKF::Prediction(double delta_t) {
   x_.fill(0.0);
   for (unsigned int i=0; i<=2*n_aug_; i++)
   {
-	  x_ += weights_(i) * Xsig_pred_.col(i);
+      x_ += weights_(i) * Xsig_pred_.col(i);
   }
 
   // Predicted covariance
   P_.fill(0.0);
   for (unsigned int i=0; i<=2*n_aug_; i++)
   {
-	  VectorXd X_diff = Xsig_pred_.col(i) - x_;
+      VectorXd X_diff = Xsig_pred_.col(i) - x_;
       while (X_diff(3)> M_PI) X_diff(3)-=2.*M_PI;
-      while (X_diff(3)<-M_PI) X_diff(3)+=2.*M_PI;	  
-	  P_ += X_diff * X_diff.transpose() * weights_(i);
+      while (X_diff(3)<-M_PI) X_diff(3)+=2.*M_PI;     
+      P_ += X_diff * X_diff.transpose() * weights_(i);
   }
 }
 
@@ -234,11 +229,10 @@ void UKF::Prediction(double delta_t) {
 void UKF::UpdateLidar(MeasurementPackage meas_package) {
   /**
   TODO:
-
-  Complete this function! Use lidar data to update the belief about the object's
-  position. Modify the state vector, x_, and covariance, P_.
-
-  You'll also need to calculate the lidar NIS.
+  Using the linear Kalman filter update equations just like in the EKF 
+  project should give the same results and has the advantage to 
+  require less computational resources. 
+  Thus, better Real Time performance.
   */
   
   int n_z = 2;
@@ -280,14 +274,14 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
   Tc.fill(0.0);
   for (unsigned int i=0; i<2*n_aug_+1; i++)
   {
-	  VectorXd x_diff = Xsig_pred_.col(i)-x_;
+      VectorXd x_diff = Xsig_pred_.col(i)-x_;
       //angle normalization
       while (x_diff(3)> M_PI) x_diff(3)-=2.*M_PI;
-      while (x_diff(3)<-M_PI) x_diff(3)+=2.*M_PI;	  
-	  
-	  VectorXd z_diff = Zsig.col(i)-z_pred;
-	  
-      Tc += weights_(i) * x_diff * z_diff.transpose();	  
+      while (x_diff(3)<-M_PI) x_diff(3)+=2.*M_PI;     
+      
+      VectorXd z_diff = Zsig.col(i)-z_pred;
+      
+      Tc += weights_(i) * x_diff * z_diff.transpose();    
   }
 
   //calculate Kalman gain K;
@@ -309,14 +303,6 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
  * @param {MeasurementPackage} meas_package
  */
 void UKF::UpdateRadar(MeasurementPackage meas_package) {
-  /**
-  TODO:
-
-  Complete this function! Use radar data to update the belief about the object's
-  position. Modify the state vector, x_, and covariance, P_.
-
-  You'll also need to calculate the radar NIS.
-  */
   int n_z = 3;
   MatrixXd Zsig(n_z, 2 * n_aug_+1);
   
@@ -369,16 +355,16 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
   Tc.fill(0.0);
   for (unsigned int i=0; i<2*n_aug_+1; i++)
   {
-	  VectorXd x_diff = Xsig_pred_.col(i)-x_;
+      VectorXd x_diff = Xsig_pred_.col(i)-x_;
       //angle normalization
       while (x_diff(3)> M_PI) x_diff(3)-=2.*M_PI;
-      while (x_diff(3)<-M_PI) x_diff(3)+=2.*M_PI;	  
-	  
-	  VectorXd z_diff = Zsig.col(i)-z_pred;
+      while (x_diff(3)<-M_PI) x_diff(3)+=2.*M_PI;     
+      
+      VectorXd z_diff = Zsig.col(i)-z_pred;
       //angle normalization
       while (z_diff(1)> M_PI) z_diff(1)-=2.*M_PI;
       while (z_diff(1)<-M_PI) z_diff(1)+=2.*M_PI;
-	  
+      
       Tc += weights_(i) * x_diff * z_diff.transpose();
   }
 
@@ -402,6 +388,6 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
 
 void UKF::Log(const VectorXd& estimate, const VectorXd& gt)
 {
-	log_file << estimate(0) << " " << estimate(1) << " " << estimate(2) << " " << estimate(3);
-	log_file << " " << gt(0) << " " << gt(1) << " " << gt(2) << " " << gt(3) << std::endl;
+    log_file << estimate(0) << " " << estimate(1) << " " << estimate(2) << " " << estimate(3);
+    log_file << " " << gt(0) << " " << gt(1) << " " << gt(2) << " " << gt(3) << std::endl;
 }

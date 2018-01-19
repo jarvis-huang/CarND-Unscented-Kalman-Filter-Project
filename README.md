@@ -62,22 +62,22 @@ If the measurement is a laser measurement, I initialize `px=rho*cos(phi)`, `py=r
 |  vy        |      0.326    |      0.359    | 
 
 **Dataset 1 screenshot (radar + lidar) **
-![1][figures/dataset1.png]
+![1](figures/dataset1.png)
 
 **Dataset 2 screenshot (radar + lidar)**
-![2][figures/dataset2.png]
+![2](figures/dataset2.png)
 
 **Dataset 1 screenshot (radar only)**
-![3][figures/radar_only1.png]
+![3](figures/radar_only1.png)
 
 **Dataset 2 screenshot (radar only)**
-![4][figures/radar_only2.png]
+![4](figures/radar_only2.png)
 
 **Dataset 1 screenshot (lidar only)**
-![5][figures/laser_only1.png]
+![5](figures/laser_only1.png)
 
 **Dataset 2 screenshot (lidar only)**
-![6][figures/laser_only2.png]
+![6](figures/laser_only2.png)
 
 ### 2. Detailed error analysis
 As the plots show, position errors are generally very small.

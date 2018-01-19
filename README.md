@@ -1,28 +1,17 @@
 # Unscented Kalman Filter Project Starter Code
 Self-Driving Car Engineer Nanodegree Program
 
-In this project utilize an Unscented Kalman Filter to estimate the 
-state of a moving object of interest with noisy lidar and radar measurements. 
-Passing the project requires obtaining RMSE values that are lower that 
-the tolerance outlined in the project reburic.
+---
 
-[image1]: ./figures/dataset_1_shot.png "Dataset 1 screenshot"
-[image2]: ./figures/dataset_2_shot.png "Dataset 2 screenshot"
+[image1]: ./figures/dataset1.png "Dataset 1 screenshot"
+[image2]: ./figures/dataset2.png "Dataset 2 screenshot"
 [image3]: ./figures/dataset_1.png "Dataset 1 error"
 [image4]: ./figures/dataset_2.png "Dataset 2 error"
 [image5]: ./figures/NIS_dataset_1.png "Dataset 1 NIS plot"
 [image6]: ./figures/NIS_dataset_2.png "Dataset 2 NIS plot"
 
-## Build Instructions
+## Implementation
 
-1. Clone this repo.
-2. Make a build directory: `mkdir build && cd build`
-3. Compile: `cmake .. && make`
-4. Run it: `./UnscentedKF` The current state uses i/o from the simulator.
-
-## Editor Settings
-
-## Project Implementation
 I mostly followed the instructions from the UKF class materials. The only
 special cases are process noise and covariance parameters and initializations.
 
@@ -30,37 +19,66 @@ special cases are process noise and covariance parameters and initializations.
 
 |    Noise   |    Value      | 
 |:----------:|:-------------:| 
-|  std_a     |      3.5      | 
+|  std_a     |      4.0      | 
 | std_yawd   |      1.5      | 
 
-- For a bicycle, a reason linear acceleration is 2m/s^2. So I set std_a to be double that amount.
-- For a bicycle, I assume it can complete a full circle in 6 seconds. That's equivalent
-to 1 rad/s.
+- I set std_a to be 4m/s^2. Because a reason linear acceleration for a bicycle is 2m/s^2.
+- If I assume a bicycle can complete a full circle in 10 seconds. The double yaw_rate is 1.5 rad/s.
 
 ### 1. Initialization of state vector **x** and state covariance matrix **P**
 - For P, I initialize to all zero, for lack of knowledge.
-- For x, it is initialized upon receiving first measurement.
-If the measurement is a laser measurement, I initialize px, py directly from measurement values.
+- For x, it is initialized by the first measurement.
+If the measurement is a laser measurement, I initialize `px, py` from measurement values.
 If the measurement is a laser measurement, I initialize `px=rho*cos(phi)`, `py=rho*sin(phi)`.
 
 ## Results
 
 ### 1. RMSE
+**radar + lidar**
 |   Metric   |Dataset 1 RMSE |Dataset 2 RMSE | 
 |:----------:|:-------------:|:-------------:| 
-|  px        |      0.082    |      0.086    | 
-|  py        |      0.086    |      0.079    | 
-|  vx        |      0.348    |      0.297    | 
-|  vy        |      0.228    |      0.252    | 
+|  px        |      0.080    |      0.086    | 
+|  py        |      0.087    |      0.080    | 
+|  vx        |      0.397    |      0.303    | 
+|  vy        |      0.238    |      0.262    | 
 
-**Dataset 1 screenshot**
-![Dataset 1 screenshot][image1]
-**Dataset 2 screenshot**
-![Dataset 2 screenshot][image2]
+**radar only**
+|   Metric   |Dataset 1 RMSE |Dataset 2 RMSE | 
+|:----------:|:-------------:|:-------------:| 
+|  px        |      0.232    |      0.220    | 
+|  py        |      0.315    |      0.264    | 
+|  vx        |      0.499    |      0.427    | 
+|  vy        |      0.462    |      0.473    | 
+
+**lidar only**
+|   Metric   |Dataset 1 RMSE |Dataset 2 RMSE | 
+|:----------:|:-------------:|:-------------:| 
+|  px        |      0.178    |      0.161    | 
+|  py        |      0.152    |      0.148    | 
+|  vx        |      0.617    |      0.371    | 
+|  vy        |      0.326    |      0.359    | 
+
+**Dataset 1 screenshot (radar + lidar) **
+![Dataset1][figures/dataset1.png]
+
+**Dataset 2 screenshot (radar + lidar)**
+![Dataset2][figures/dataset2.png]
+
+**Dataset 1 screenshot (radar only)**
+![Dataset1][figures/radar_only1.png]
+
+**Dataset 2 screenshot (radar only)**
+![Dataset2][figures/radar_only2.png]
+
+**Dataset 1 screenshot (lidar only)**
+![Dataset1][figures/laser_only1.png]
+
+**Dataset 2 screenshot (lidar only)**
+![Dataset2][figures/laser_only2.png]
 
 ### 2. Detailed error analysis
-As the plots show, position estimates are generally very close to ground truth.
-Velocity estimates are less accurate, but still follows ground truth mostly.
+As the plots show, position errors are generally very small.
+Velocity errors are larger due to lack of direct measurement, but still reasonable.
 This is because we don't have direct measurement of the velocities.
 
 **Dataset 1 error analysis**

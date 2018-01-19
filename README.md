@@ -35,6 +35,7 @@ If the measurement is a laser measurement, I initialize `px=rho*cos(phi)`, `py=r
 
 ### 1. RMSE
 **radar + lidar**
+
 |   Metric   |Dataset 1 RMSE |Dataset 2 RMSE | 
 |:----------:|:-------------:|:-------------:| 
 |  px        |      0.080    |      0.086    | 
@@ -43,6 +44,7 @@ If the measurement is a laser measurement, I initialize `px=rho*cos(phi)`, `py=r
 |  vy        |      0.238    |      0.262    | 
 
 **radar only**
+
 |   Metric   |Dataset 1 RMSE |Dataset 2 RMSE | 
 |:----------:|:-------------:|:-------------:| 
 |  px        |      0.232    |      0.220    | 
@@ -51,6 +53,7 @@ If the measurement is a laser measurement, I initialize `px=rho*cos(phi)`, `py=r
 |  vy        |      0.462    |      0.473    | 
 
 **lidar only**
+
 |   Metric   |Dataset 1 RMSE |Dataset 2 RMSE | 
 |:----------:|:-------------:|:-------------:| 
 |  px        |      0.178    |      0.161    | 

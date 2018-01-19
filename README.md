@@ -61,7 +61,7 @@ If the measurement is a laser measurement, I initialize `px=rho*cos(phi)`, `py=r
 |  vx        |      0.617    |      0.371    | 
 |  vy        |      0.326    |      0.359    | 
 
-**Dataset 1 screenshot (radar + lidar) **
+**Dataset 1 screenshot (radar + lidar)**
 ![1](figures/dataset1.png)
 
 **Dataset 2 screenshot (radar + lidar)**
